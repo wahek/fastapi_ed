@@ -1,6 +1,7 @@
+import logging
 from typing import Annotated
 
-from fastapi import FastAPI, HTTPException, Path
+from fastapi import FastAPI, HTTPException, Path, Body
 from pydantic import BaseModel, Field
 
 """
@@ -55,5 +56,16 @@ def user_put(user: UserPost, pswd: str) -> str:
             if u.password == pswd:
                 db[i] = user
                 return 'User update'
+            raise HTTPException(status_code=402, detail='permission deni, invalid password')
+    raise HTTPException(status_code=401, detail='User not found')
+
+
+@app.delete('/users/{user_id}')
+def user_del(user_id, pswd: str) -> str:
+    for i, u in enumerate(db):
+        if u.user_id == user_id:
+            if u.password == pswd:
+                db.pop(i)
+                return 'User delete'
             raise HTTPException(status_code=402, detail='permission deni, invalid password')
     raise HTTPException(status_code=401, detail='User not found')
